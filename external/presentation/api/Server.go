@@ -1,14 +1,14 @@
 package api
 
 import (
-	"hub_logging/configs"
-	"hub_logging/external/api/rest"
-	"hub_logging/external/api/rest/handlers"
+	"hub_logging/config"
+	"hub_logging/external/presentation/api/rest"
+	"hub_logging/external/presentation/api/rest/handlers"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func StartServer(config configs.AppConfig) {
+func StartServer(config config.AppConfig) {
 
 	app := fiber.New()
 

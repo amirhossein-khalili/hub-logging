@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"hub_logging/external/api/rest"
+	"hub_logging/external/presentation/api/rest"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
