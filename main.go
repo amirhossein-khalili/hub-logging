@@ -2,7 +2,7 @@ package main
 
 import (
 	"hub_logging/configs"
-	"hub_logging/internal/api"
+	"hub_logging/external/api"
 	"log"
 )
 

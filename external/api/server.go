@@ -2,8 +2,8 @@ package api
 
 import (
 	"hub_logging/configs"
-	"hub_logging/internal/api/rest"
-	"hub_logging/internal/api/rest/handlers"
+	"hub_logging/external/api/rest"
+	"hub_logging/external/api/rest/handlers"
 
 	"github.com/gofiber/fiber/v2"
 )
