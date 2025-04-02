@@ -1,9 +1,9 @@
-package repositories
+package repositoriesInterfaces
 
 import "hub_logging/internal/domain/entities"
 
 // StatisticsRepository defines the interface for Statistics persistence.
-type StatisticsRepository interface {
+type IStatisticsRepository interface {
 	// Save persists a single Statistics entity.
 	Save(statistics entities.Statistics) error
 

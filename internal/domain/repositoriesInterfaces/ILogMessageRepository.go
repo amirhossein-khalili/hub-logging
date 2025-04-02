@@ -1,9 +1,9 @@
-package repositories
+package repositoriesInterfaces
 
 import "hub_logging/internal/domain/entities"
 
 // LogMessageRepository defines the interface for LogMessage persistence.
-type LogMessageRepository interface {
+type ILogMessageRepository interface {
 	// Save persists a single LogMessage to the underlying storage.
 	Save(logMessage entities.LogMessage) error
 

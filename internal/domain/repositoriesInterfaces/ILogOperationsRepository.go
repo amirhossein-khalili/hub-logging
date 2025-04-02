@@ -1,9 +1,9 @@
-package repositories
+package repositoriesInterfaces
 
 import "hub_logging/internal/domain/entities"
 
 // LogOperationsRepository defines the interface for LogOperations persistence.
-type LogOperationsRepository interface {
+type ILogOperationsRepository interface {
 	// Save persists a single LogOperations entity.
 	Save(logOperation entities.LogOperations) error
 
