@@ -1,10 +1,14 @@
 package entities
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 // LogMessage represents a single log entry in the system.
 type LogMessage struct {
-	ID           int       `json:"id"`
+	ID           uuid.UUID `json:"id"`
 	Timestamp    time.Time `json:"timestamp"`
 	StatusCode   int       `json:"status_code"`
 	HttpMethod   string    `json:"http_method"`
