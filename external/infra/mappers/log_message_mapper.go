@@ -1,10 +1,11 @@
 package mappers
 
 import (
-	domain "hub_logging/internal/domain/entities"
 	model "hub_logging/external/infra/models"
+	domain "hub_logging/internal/domain/entities"
 )
 
+// ToModelLogMessage converts a domain LogMessage into its DB model representation.
 func ToModelLogMessage(entity domain.LogMessage) model.LogMessage {
 	return model.LogMessage{
 		ID:           entity.ID,
@@ -19,6 +20,7 @@ func ToModelLogMessage(entity domain.LogMessage) model.LogMessage {
 	}
 }
 
+// ToEntityLogMessage converts a DB model LogMessage into the domain entity.
 func ToEntityLogMessage(model model.LogMessage) domain.LogMessage {
 	return domain.LogMessage{
 		ID:           model.ID,

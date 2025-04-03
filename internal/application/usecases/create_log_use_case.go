@@ -17,14 +17,18 @@ func NewCreateLogUseCase(logRepo repositoriesInterfaces.ILogMessageRepository) *
 }
 
 func (uc *CreateLogUseCase) Execute(input dtos.CreateLogDTO) error {
+
 	statusCode, err := valueobjects.NewStatusCode(input.StatusCode)
+
 	if err != nil {
 		return err
 	}
+
 	method, err := valueobjects.NewRequestMethod(input.HttpMethod)
 	if err != nil {
 		return err
 	}
+
 	route, err := valueobjects.NewRoutePath(input.RoutePath)
 	if err != nil {
 		return err
