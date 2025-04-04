@@ -2,14 +2,15 @@ package main
 
 import (
 	"hub_logging/config"
-	"hub_logging/external/presentation/api"
+	"hub_logging/external/presentation/api/server"
 	"log"
 )
 
-func main() {
+func main() { // Load application configuration.
 	cfg, err := config.SetupEnv()
 	if err != nil {
-		log.Fatalf("config file is not loaded properly: %v \n", err)
+		log.Fatalf("failed to load configuration: %v", err)
 	}
-	api.StartServer(cfg)
+
+	server.StartServer(cfg)
 }
