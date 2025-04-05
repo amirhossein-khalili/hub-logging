@@ -7,30 +7,29 @@ import (
 
 	"hub_logging/internal/application/dtos"
 	"hub_logging/internal/application/usecases"
-	"hub_logging/internal/domain/repositoriesInterfaces"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 type LogController struct {
 	CreateLogUseCase *usecases.CreateLogUseCase
-	LogMessageRepo   repositoriesInterfaces.ILogMessageRepository
+	DeleteLogUseCase *usecases.DeleteLogUseCase
+	GetLogsUseCase   *usecases.GetLogsUseCase
 }
 
-func NewLogController(createLogUseCase *usecases.CreateLogUseCase, repo repositoriesInterfaces.ILogMessageRepository) *LogController {
+func NewLogController(createLogUseCase *usecases.CreateLogUseCase, deleteLogUseCase *usecases.DeleteLogUseCase, getLogsUseCase *usecases.GetLogsUseCase) *LogController {
 	return &LogController{
 		CreateLogUseCase: createLogUseCase,
-		LogMessageRepo:   repo,
+		DeleteLogUseCase: deleteLogUseCase,
+		GetLogsUseCase:   getLogsUseCase,
 	}
 }
 
 // ListLogs handles GET /logs and returns a paginated list of log messages.
 func (lc *LogController) ListLogs(ctx *fiber.Ctx) error {
-	// Get pagination parameters from query parameters, with default values.
 	page := 1
 	limit := 10
 
-	// Parse page and limit from query parameters, if provided.
 	if p := ctx.Query("page"); p != "" {
 		if parsedPage, err := strconv.Atoi(p); err == nil && parsedPage > 0 {
 			page = parsedPage
@@ -42,22 +41,19 @@ func (lc *LogController) ListLogs(ctx *fiber.Ctx) error {
 		}
 	}
 
-	// Calculate the offset.
 	offset := (page - 1) * limit
 
-	// Fetch logs with pagination.
-	logs, err := lc.LogMessageRepo.FindWithPagination(limit, offset)
+	logs, err := lc.GetLogsUseCase.Execute(limit, offset)
 	if err != nil {
 		return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	// Return the paginated logs.
 	return ctx.JSON(logs)
 }
 
 func (lc *LogController) GetLog(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
-	logMessage, err := lc.LogMessageRepo.FindByID(id)
+	logMessage, err := lc.GetLogsUseCase.ExecuteSingle(id)
 	if err != nil {
 		return ctx.Status(http.StatusNotFound).JSON(fiber.Map{"error": "Log not found"})
 	}
@@ -75,7 +71,6 @@ func (lc *LogController) CreateLog(ctx *fiber.Ctx) error {
 		req.Timestamp = time.Now()
 	}
 
-	// Execute the use case to create a new log.
 	if err := lc.CreateLogUseCase.Execute(req); err != nil {
 		return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -84,7 +79,7 @@ func (lc *LogController) CreateLog(ctx *fiber.Ctx) error {
 
 func (lc *LogController) DeleteLog(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
-	if err := lc.LogMessageRepo.Delete(id); err != nil {
+	if err := lc.DeleteLogUseCase.Execute(id); err != nil {
 		return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 	return ctx.JSON(fiber.Map{"message": "Log deleted successfully"})

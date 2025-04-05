@@ -26,7 +26,7 @@ func StartServer(cfg config.AppConfig) {
 		log.Fatalf("Failed to initialize container: %v", err)
 	}
 	// Create an instance of LogController using the dependencies provided by the container.
-	logController := controller.NewLogController(container.CreateLogUseCase, container.LogMessageRepo)
+	logController := controller.NewLogController(container.CreateLogUseCase, container.DeleteLogUseCase, container.GetLogsUseCase)
 
 	// Register the REST routes (grouping under /api, for example).
 	rest.RegisterRestRoutes(app, logController)

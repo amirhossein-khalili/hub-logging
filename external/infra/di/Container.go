@@ -22,6 +22,8 @@ type Container struct {
 	DB               *gorm.DB
 	LogMessageRepo   repositoriesInterfaces.ILogMessageRepository
 	CreateLogUseCase *usecases.CreateLogUseCase
+	GetLogsUseCase   *usecases.GetLogsUseCase
+	DeleteLogUseCase *usecases.DeleteLogUseCase
 }
 
 // InitializeContainer initializes dependencies.
@@ -57,10 +59,14 @@ func InitializeContainer(cfg config.AppConfig) (*Container, error) {
 	// Initialize repository and use case
 	logRepo := pgRepo.NewLogMessageRepository(db)
 	createLogUseCase := usecases.NewCreateLogUseCase(logRepo)
+	getLogsUseCase := usecases.NewGetLogsUseCase(logRepo)
+	deleteLogUseCase := usecases.NewDeleteLogUseCase(logRepo)
 
 	return &Container{
 		DB:               db,
 		LogMessageRepo:   logRepo,
-		CreateLogUseCase: createLogUseCase, // Ensure this is correctly initialized
+		CreateLogUseCase: createLogUseCase,
+		GetLogsUseCase:   getLogsUseCase,
+		DeleteLogUseCase: deleteLogUseCase,
 	}, nil
 }
