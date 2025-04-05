@@ -18,6 +18,5 @@ func RegisterRestRoutes(app *fiber.App, logController *controller.LogController)
 	logs.Get("/", logController.ListLogs)
 	logs.Get("/:id", logController.GetLog)
 	logs.Post("/", logController.CreateLog)
-	logs.Put("/:id", logController.UpdateLog)
 	logs.Delete("/:id", logController.DeleteLog)
 }

@@ -52,6 +52,22 @@ func (r *logMessageRepository) FindAll() ([]entities.LogMessage, error) {
 	return entitiesList, nil
 }
 
+// FindWithPagination retrieves logs with pagination.
+func (r *logMessageRepository) FindWithPagination(limit, offset int) ([]entities.LogMessage, error) {
+	var modelsList []models.LogMessage
+	err := r.db.Limit(limit).Offset(offset).Find(&modelsList).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert models to entities.
+	var entitiesList []entities.LogMessage
+	for _, m := range modelsList {
+		entitiesList = append(entitiesList, mappers.ToEntityLogMessage(m))
+	}
+	return entitiesList, nil
+}
+
 // Update modifies an existing LogMessage in the database.
 func (r *logMessageRepository) Update(logMessage entities.LogMessage) error {
 	// GORM's Save will update all fields.

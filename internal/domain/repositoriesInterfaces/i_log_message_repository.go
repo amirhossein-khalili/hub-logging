@@ -13,6 +13,9 @@ type ILogMessageRepository interface {
 	// FindAll retrieves all LogMessages.
 	FindAll() ([]entities.LogMessage, error)
 
+	// FindAll retrieves all LogMessages with pagination.
+	FindWithPagination(limit, offset int) ([]entities.LogMessage, error)
+
 	// Update modifies an existing LogMessage.
 	Update(logMessage entities.LogMessage) error
 

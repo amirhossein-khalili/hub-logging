@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	"hub_logging/internal/application/dtos"
@@ -23,11 +24,34 @@ func NewLogController(createLogUseCase *usecases.CreateLogUseCase, repo reposito
 	}
 }
 
+// ListLogs handles GET /logs and returns a paginated list of log messages.
 func (lc *LogController) ListLogs(ctx *fiber.Ctx) error {
-	logs, err := lc.LogMessageRepo.FindAll()
+	// Get pagination parameters from query parameters, with default values.
+	page := 1
+	limit := 10
+
+	// Parse page and limit from query parameters, if provided.
+	if p := ctx.Query("page"); p != "" {
+		if parsedPage, err := strconv.Atoi(p); err == nil && parsedPage > 0 {
+			page = parsedPage
+		}
+	}
+	if l := ctx.Query("limit"); l != "" {
+		if parsedLimit, err := strconv.Atoi(l); err == nil && parsedLimit > 0 {
+			limit = parsedLimit
+		}
+	}
+
+	// Calculate the offset.
+	offset := (page - 1) * limit
+
+	// Fetch logs with pagination.
+	logs, err := lc.LogMessageRepo.FindWithPagination(limit, offset)
 	if err != nil {
 		return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
+
+	// Return the paginated logs.
 	return ctx.JSON(logs)
 }
 
@@ -56,44 +80,6 @@ func (lc *LogController) CreateLog(ctx *fiber.Ctx) error {
 		return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 	return ctx.Status(http.StatusCreated).JSON(fiber.Map{"message": "Log created successfully"})
-}
-
-type UpdateLogRequest struct {
-	StatusCode   int    `json:"status_code"`
-	HttpMethod   string `json:"http_method"`
-	RoutePath    string `json:"route_path"`
-	Message      string `json:"message"`
-	UserName     string `json:"user_name"`
-	DestHostname string `json:"dest_hostname"`
-	SourceIP     string `json:"source_ip"`
-}
-
-func (lc *LogController) UpdateLog(ctx *fiber.Ctx) error {
-	id := ctx.Params("id")
-	// Retrieve the existing log.
-	existing, err := lc.LogMessageRepo.FindByID(id)
-	if err != nil {
-		return ctx.Status(http.StatusNotFound).JSON(fiber.Map{"error": "Log not found"})
-	}
-
-	var req UpdateLogRequest
-	if err := ctx.BodyParser(&req); err != nil {
-		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "Invalid payload"})
-	}
-
-	// Update fields.
-	existing.StatusCode = req.StatusCode
-	existing.HttpMethod = req.HttpMethod
-	existing.RoutePath = req.RoutePath
-	existing.Message = req.Message
-	existing.UserName = req.UserName
-	existing.DestHostname = req.DestHostname
-	existing.SourceIP = req.SourceIP
-
-	if err := lc.LogMessageRepo.Update(existing); err != nil {
-		return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-	}
-	return ctx.JSON(fiber.Map{"message": "Log updated successfully"})
 }
 
 func (lc *LogController) DeleteLog(ctx *fiber.Ctx) error {
