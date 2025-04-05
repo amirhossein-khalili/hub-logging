@@ -17,20 +17,11 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-// Container holds the dependencies of the application.
-type Container struct {
-	DB               *gorm.DB
-	LogMessageRepo   repositoriesInterfaces.ILogMessageRepository
-	CreateLogUseCase *usecases.CreateLogUseCase
-}
-
-// InitializeContainer initializes dependencies.
-func InitializeContainer(cfg config.AppConfig) (*Container, error) {
-	// Build DSN using the DB configuration from cfg.
+// ProvideDB initializes the database connection.
+func ProvideDB(cfg config.AppConfig) (*gorm.DB, error) {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s TimeZone=%s sslmode=disable",
 		cfg.DBHost, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBPort, cfg.TimeZone)
 
-	// Initialize logger for GORM
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
 		logger.Config{
@@ -41,7 +32,7 @@ func InitializeContainer(cfg config.AppConfig) (*Container, error) {
 		},
 	)
 
-	// Open a GORM DB connection
+	// Open a GORM DB connection using the Postgres driver.
 	db, err := gorm.Open(pgDriver.Open(dsn), &gorm.Config{
 		Logger: newLogger,
 	})
@@ -49,18 +40,20 @@ func InitializeContainer(cfg config.AppConfig) (*Container, error) {
 		return nil, fmt.Errorf("failed to open DB connection: %v", err)
 	}
 
-	// Run auto-migration
+	// Run auto-migration to create or update the log_message table.
 	if err := db.AutoMigrate(&models.LogMessage{}); err != nil {
 		return nil, fmt.Errorf("failed to auto migrate: %v", err)
 	}
 
-	// Initialize repository and use case
-	logRepo := pgRepo.NewLogMessageRepository(db)
-	createLogUseCase := usecases.NewCreateLogUseCase(logRepo)
+	return db, nil
+}
 
-	return &Container{
-		DB:               db,
-		LogMessageRepo:   logRepo,
-		CreateLogUseCase: createLogUseCase, // Ensure this is correctly initialized
-	}, nil
+// ProvideLogMessageRepository initializes the LogMessageRepository.
+func ProvideLogMessageRepository(db *gorm.DB) repositoriesInterfaces.ILogMessageRepository {
+	return pgRepo.NewLogMessageRepository(db)
+}
+
+// ProvideCreateLogUseCase initializes the CreateLogUseCase.
+func ProvideCreateLogUseCase(logRepo repositoriesInterfaces.ILogMessageRepository) *usecases.CreateLogUseCase {
+	return usecases.NewCreateLogUseCase(logRepo)
 }
