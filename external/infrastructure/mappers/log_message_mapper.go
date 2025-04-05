@@ -1,7 +1,7 @@
 package mappers
 
 import (
-	model "hub_logging/external/infra/models"
+	model "hub_logging/external/infrastructure/models"
 	domain "hub_logging/internal/domain/entities"
 )
 

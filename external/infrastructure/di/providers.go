@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"hub_logging/config"
-	"hub_logging/external/infra/models"
-	pgRepo "hub_logging/external/infra/repositories/postgres"
+	"hub_logging/external/infrastructure/models"
+	pgRepo "hub_logging/external/infrastructure/repositories/postgres"
 	"hub_logging/internal/application/usecases"
 	"hub_logging/internal/domain/repositoriesInterfaces"
 

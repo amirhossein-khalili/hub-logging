@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"hub_logging/config"
-	"hub_logging/external/infra/di"
+	"hub_logging/external/infrastructure/di"
 	"hub_logging/external/presentation/api/controller"
 	"hub_logging/external/presentation/api/middleware"
 	"hub_logging/external/presentation/api/routes/rest"

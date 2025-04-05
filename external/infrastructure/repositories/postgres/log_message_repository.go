@@ -1,8 +1,8 @@
 package postgres
 
 import (
-	"hub_logging/external/infra/mappers"
-	"hub_logging/external/infra/models"
+	"hub_logging/external/infrastructure/mappers"
+	"hub_logging/external/infrastructure/models"
 	"hub_logging/internal/domain/entities"
 	"hub_logging/internal/domain/repositoriesInterfaces"
 
