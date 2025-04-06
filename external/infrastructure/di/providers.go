@@ -40,8 +40,14 @@ func ProvideDB(cfg config.AppConfig) (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to open DB connection: %v", err)
 	}
 
-	// Run auto-migration to create or update the log_message table.
-	if err := db.AutoMigrate(&models.LogMessage{}); err != nil {
+	// Run auto-migration for all models
+	if err := db.AutoMigrate(
+		&models.LogMessage{},
+		&models.IPStatistics{},
+		&models.MethodStatusStatistics{},
+		&models.RouteStatistics{},
+		&models.UserStatistics{},
+	); err != nil {
 		return nil, fmt.Errorf("failed to auto migrate: %v", err)
 	}
 
@@ -51,6 +57,26 @@ func ProvideDB(cfg config.AppConfig) (*gorm.DB, error) {
 // ProvideLogMessageRepository initializes the LogMessageRepository.
 func ProvideLogMessageRepository(db *gorm.DB) repositoriesInterfaces.ILogMessageRepository {
 	return pgRepo.NewLogMessageRepository(db)
+}
+
+// ProvideIPStatisticsRepository initializes the IPStatisticsRepository.
+func ProvideIPStatisticsRepository(db *gorm.DB) repositoriesInterfaces.IIPStatisticsRepository {
+	return pgRepo.NewIPStatisticsRepository(db)
+}
+
+// ProvideMethodStatusStatisticsRepository initializes the MethodStatusStatisticsRepository.
+func ProvideMethodStatusStatisticsRepository(db *gorm.DB) repositoriesInterfaces.IMethodStatusStatisticsRepository {
+	return pgRepo.NewMethodStatusStatisticsRepository(db)
+}
+
+// ProvideRouteStatisticsRepository initializes the RouteStatisticsRepository.
+func ProvideRouteStatisticsRepository(db *gorm.DB) repositoriesInterfaces.IRouteStatisticsRepository {
+	return pgRepo.NewRouteStatisticsRepository(db)
+}
+
+// ProvideUserStatisticsRepository initializes the UserStatisticsRepository.
+func ProvideUserStatisticsRepository(db *gorm.DB) repositoriesInterfaces.IUserStatisticsRepository {
+	return pgRepo.NewUserStatisticsRepository(db)
 }
 
 // ProvideCreateLogUseCase initializes the CreateLogUseCase.
