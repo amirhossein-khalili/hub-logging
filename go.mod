@@ -3,6 +3,7 @@ module hub_logging
 go 1.24.0
 
 require (
+	github.com/IBM/sarama v1.45.1
 	github.com/gofiber/fiber/v2 v2.52.6
 	github.com/google/uuid v1.6.0
 	github.com/spf13/viper v1.20.1
@@ -12,7 +13,6 @@ require (
 )
 
 require (
-	github.com/IBM/sarama v1.45.1 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/eapache/go-resiliency v1.7.0 // indirect
