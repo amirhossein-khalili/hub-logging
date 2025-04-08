@@ -42,8 +42,8 @@ func setupLogMessageDB(t *testing.T) *gorm.DB {
 // Adjust the default values as needed to match your actual business logic.
 func createDummyLogMessage(id uuid.UUID, message string) entities.LogMessage {
 	return entities.LogMessage{
-		ID:           id,
-		StatusCode:   0,  // default status code
+		ID:         id,
+		StatusCode: 0, // default status code
 		// HTTPMethod:   "", // empty or a valid HTTP method like "GET"
 		RoutePath:    "", // empty or a valid route path
 		Message:      message,
