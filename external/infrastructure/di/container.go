@@ -10,6 +10,7 @@ import (
 	"hub_logging/external/infrastructure/models"
 	pgRepo "hub_logging/external/infrastructure/repositories/postgres"
 	"hub_logging/internal/application/usecases"
+	"hub_logging/internal/domain/events"
 	"hub_logging/internal/domain/repositoriesInterfaces"
 
 	pgDriver "gorm.io/driver/postgres"
@@ -90,14 +91,27 @@ func InitializeContainer(cfg config.AppConfig) (*Container, error) {
 	userStatsRepo := pgRepo.NewUserStatisticsRepository(db)
 
 	/*--------------------------------------------------------------------
+	*						 Create publisher and observers.
+	 --------------------------------------------------------------------*/
+	publisher := events.NewLogEventPublisher()
+	ipObserver := events.NewIPStatsObserver(ipStatsRepo)
+	routeObserver := events.NewRouteStatsObserver(routeStatsRepo)
+	methodObserver := events.NewMethodStatusStatsObserver(methodStatsRepo)
+	userObserver := events.NewUserStatsObserver(userStatsRepo)
+
+	publisher.Attach(ipObserver)
+	publisher.Attach(routeObserver)
+	publisher.Attach(methodObserver)
+	publisher.Attach(userObserver)
+
+	/*--------------------------------------------------------------------
 	*						INITILIZE USECASES
 	 --------------------------------------------------------------------*/
-	createLogUseCase := usecases.NewCreateLogUseCase(logRepo)
+	createLogUseCase := usecases.NewCreateLogUseCase(logRepo, publisher)
 	getLogsUseCase := usecases.NewGetLogsUseCase(logRepo)
 	deleteLogUseCase := usecases.NewDeleteLogUseCase(logRepo)
 
 	return &Container{
-
 		DB:                         db,
 		LogMessageRepo:             logRepo,
 		IPStatisticsRepo:           ipStatsRepo,
