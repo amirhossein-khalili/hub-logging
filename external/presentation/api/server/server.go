@@ -27,9 +27,10 @@ func StartServer(cfg config.AppConfig) {
 	}
 	// Create an instance of LogController using the dependencies provided by the container.
 	logController := controller.NewLogController(container.CreateLogUseCase, container.DeleteLogUseCase, container.GetLogsUseCase)
+	statsController := controller.NewStatisticsController(container.GetIPStatisticsUseCase, container.GetRouteStatisticsUseCase, container.GetMethodStatisticsUseCase, container.GetUserStatisticsUseCase)
 
 	// Register the REST routes (grouping under /api, for example).
-	rest.RegisterRestRoutes(app, logController)
+	rest.RegisterRestRoutes(app, statsController, logController)
 
 	// Start the Fiber server on the port specified in configuration.
 	log.Fatal(app.Listen(cfg.ServerPort))

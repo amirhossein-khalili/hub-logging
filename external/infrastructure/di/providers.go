@@ -38,3 +38,23 @@ func ProvideUserStatisticsRepository(db *gorm.DB) repositoriesInterfaces.IUserSt
 func ProvideCreateLogUseCase(logRepo repositoriesInterfaces.ILogMessageRepository, publisher events.ILogEventPublisher) *usecases.CreateLogUseCase {
 	return usecases.NewCreateLogUseCase(logRepo, publisher)
 }
+
+// ProvideGetRouteStatisticsUseCase initializes the GetRouteStatisticsUseCase.
+func ProvideGetRouteStatisticsUseCase(repo repositoriesInterfaces.IRouteStatisticsRepository) *usecases.GetRouteStatisticsUseCase {
+	return usecases.NewGetRouteStatisticsUseCase(repo)
+}
+
+// ProvideGetIPStatisticsUseCase initializes the GetIPStatisticsUseCase.
+func ProvideGetIPStatisticsUseCase(repo repositoriesInterfaces.IIPStatisticsRepository) *usecases.GetIPStatisticsUseCase {
+	return usecases.NewGetIPStatisticsUseCase(repo)
+}
+
+// ProvideGetMethodStatisticsUseCase initialize the GetMethodStatisticsUseCase
+func ProvideGetMethodStatisticsUseCase(repo repositoriesInterfaces.IMethodStatusStatisticsRepository) *usecases.GetMethodStatisticsUseCase {
+	return usecases.NewGetMethodStatisticsUseCase(repo)
+}
+
+// ProvideGetUserStatisticsUseCase initialize the GetUserStatisticsUseCase
+func ProvideGetUserStatisticsUseCase(repo repositoriesInterfaces.IUserStatisticsRepository) *usecases.GetUserStatisticsUseCase {
+	return usecases.NewGetUserStatisticsUseCase(repo)
+}

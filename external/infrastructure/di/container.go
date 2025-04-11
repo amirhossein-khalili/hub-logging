@@ -36,6 +36,10 @@ type Container struct {
 	CreateLogUseCase           *usecases.CreateLogUseCase
 	GetLogsUseCase             *usecases.GetLogsUseCase
 	DeleteLogUseCase           *usecases.DeleteLogUseCase
+	GetRouteStatisticsUseCase  *usecases.GetRouteStatisticsUseCase
+	GetIPStatisticsUseCase     *usecases.GetIPStatisticsUseCase
+	GetMethodStatisticsUseCase *usecases.GetMethodStatisticsUseCase
+	GetUserStatisticsUseCase   *usecases.GetUserStatisticsUseCase
 }
 
 /*
@@ -127,6 +131,10 @@ func InitializeContainer(cfg config.AppConfig) (*Container, error) {
 	createLogUseCase := usecases.NewCreateLogUseCase(logRepo, publisher)
 	getLogsUseCase := usecases.NewGetLogsUseCase(logRepo)
 	deleteLogUseCase := usecases.NewDeleteLogUseCase(logRepo)
+	getRouteStatisticsUseCase := usecases.NewGetRouteStatisticsUseCase(routeStatsRepo)
+	getIPStatisticsUseCase := usecases.NewGetIPStatisticsUseCase(ipStatsRepo)
+	getMethodStatisticsUseCase := usecases.NewGetMethodStatisticsUseCase(methodStatsRepo)
+	getUserStatisticsUseCase := usecases.NewGetUserStatisticsUseCase(userStatsRepo)
 
 	return &Container{
 		DB:                         gormDB,
@@ -138,5 +146,9 @@ func InitializeContainer(cfg config.AppConfig) (*Container, error) {
 		CreateLogUseCase:           createLogUseCase,
 		GetLogsUseCase:             getLogsUseCase,
 		DeleteLogUseCase:           deleteLogUseCase,
+		GetRouteStatisticsUseCase:  getRouteStatisticsUseCase,
+		GetIPStatisticsUseCase:     getIPStatisticsUseCase,
+		GetMethodStatisticsUseCase: getMethodStatisticsUseCase,
+		GetUserStatisticsUseCase:   getUserStatisticsUseCase,
 	}, nil
 }
