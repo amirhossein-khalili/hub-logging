@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"hub_logging/config"
+	"hub_logging/external/infrastructure/db"
 	"hub_logging/external/infrastructure/models"
 	pgRepo "hub_logging/external/infrastructure/repositories/postgres"
 	"hub_logging/internal/application/usecases"
@@ -46,6 +47,13 @@ type Container struct {
 */
 func InitializeContainer(cfg config.AppConfig) (*Container, error) {
 	/*--------------------------------------------------------------------
+	*			 Ensure the target database exists.
+	 --------------------------------------------------------------------*/
+	if err := db.EnsureDatabase(cfg); err != nil {
+		return nil, fmt.Errorf("database provisioning error: %w", err)
+	}
+
+	/*--------------------------------------------------------------------
 	*			Build DSN using the DB configuration from cfg.
 	 --------------------------------------------------------------------*/
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s TimeZone=%s sslmode=disable",
@@ -67,28 +75,37 @@ func InitializeContainer(cfg config.AppConfig) (*Container, error) {
 	/*--------------------------------------------------------------------
 	*						Open a GORM DB connection
 	 --------------------------------------------------------------------*/
-	db, err := gorm.Open(pgDriver.Open(dsn), &gorm.Config{
+	gormDB, err := gorm.Open(pgDriver.Open(dsn), &gorm.Config{
 		Logger: newLogger,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to open DB connection: %v", err)
 	}
+	// 5. Get the raw *sql.DB from the GORM connection.
+	rawDB, err := gormDB.DB()
+	if err != nil {
+		return nil, fmt.Errorf("failed to obtain raw database: %w", err)
+	}
+	// 6. Create required extension.
+	if err := db.CreateExtension(rawDB); err != nil {
+		return nil, err
+	}
 
 	/*--------------------------------------------------------------------
 	*						Run auto-migration
 	 --------------------------------------------------------------------*/
-	if err := db.AutoMigrate(&models.LogMessage{}, &models.IPStatistics{}, &models.MethodStatusStatistics{}, &models.RouteStatistics{}, &models.UserStatistics{}); err != nil {
+	if err := gormDB.AutoMigrate(&models.LogMessage{}, &models.IPStatistics{}, &models.MethodStatusStatistics{}, &models.RouteStatistics{}, &models.UserStatistics{}); err != nil {
 		return nil, fmt.Errorf("failed to auto migrate: %v", err)
 	}
 
 	/*--------------------------------------------------------------------
 	*						INITILIZE REPOSITORIES
 	 --------------------------------------------------------------------*/
-	logRepo := pgRepo.NewLogMessageRepository(db)
-	ipStatsRepo := pgRepo.NewIPStatisticsRepository(db)
-	methodStatsRepo := pgRepo.NewMethodStatusStatisticsRepository(db)
-	routeStatsRepo := pgRepo.NewRouteStatisticsRepository(db)
-	userStatsRepo := pgRepo.NewUserStatisticsRepository(db)
+	logRepo := pgRepo.NewLogMessageRepository(gormDB)
+	ipStatsRepo := pgRepo.NewIPStatisticsRepository(gormDB)
+	methodStatsRepo := pgRepo.NewMethodStatusStatisticsRepository(gormDB)
+	routeStatsRepo := pgRepo.NewRouteStatisticsRepository(gormDB)
+	userStatsRepo := pgRepo.NewUserStatisticsRepository(gormDB)
 
 	/*--------------------------------------------------------------------
 	*						 Create publisher and observers.
@@ -112,7 +129,7 @@ func InitializeContainer(cfg config.AppConfig) (*Container, error) {
 	deleteLogUseCase := usecases.NewDeleteLogUseCase(logRepo)
 
 	return &Container{
-		DB:                         db,
+		DB:                         gormDB,
 		LogMessageRepo:             logRepo,
 		IPStatisticsRepo:           ipStatsRepo,
 		MethodStatusStatisticsRepo: methodStatsRepo,
