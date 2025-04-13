@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"hub_logging/external/infrastructure/mappers"
 	"hub_logging/external/infrastructure/models"
 	"hub_logging/internal/domain/entities"
@@ -21,28 +22,28 @@ func NewLogMessageRepository(db *gorm.DB) repositoriesInterfaces.ILogMessageRepo
 }
 
 // Save persists the provided LogMessage entity in the database.
-func (r *logMessageRepository) Save(logMessage entities.LogMessage) error {
+func (r *logMessageRepository) Save(ctx context.Context, logMessage entities.LogMessage) error {
 	model := mappers.ToModelLogMessage(logMessage)
-	return r.db.Create(&model).Error
+	return r.db.WithContext(ctx).Create(&model).Error
 }
 
 // FindByID retrieves a LogMessage entity by its ID.
-func (r *logMessageRepository) FindByID(id string) (entities.LogMessage, error) {
+func (r *logMessageRepository) FindByID(ctx context.Context, id string) (entities.LogMessage, error) {
 	uuidID, err := uuid.Parse(id)
 	if err != nil {
 		return entities.LogMessage{}, err
 	}
 	var model models.LogMessage
-	if err := r.db.First(&model, "id = ?", uuidID).Error; err != nil {
+	if err := r.db.WithContext(ctx).First(&model, "id = ?", uuidID).Error; err != nil {
 		return entities.LogMessage{}, err
 	}
 	return mappers.ToEntityLogMessage(model), nil
 }
 
 // FindAll retrieves all LogMessage entities from the database.
-func (r *logMessageRepository) FindAll() ([]entities.LogMessage, error) {
+func (r *logMessageRepository) FindAll(ctx context.Context) ([]entities.LogMessage, error) {
 	var modelsList []models.LogMessage
-	if err := r.db.Find(&modelsList).Error; err != nil {
+	if err := r.db.WithContext(ctx).Find(&modelsList).Error; err != nil {
 		return nil, err
 	}
 	entitiesList := make([]entities.LogMessage, len(modelsList))
@@ -53,9 +54,9 @@ func (r *logMessageRepository) FindAll() ([]entities.LogMessage, error) {
 }
 
 // FindWithPagination retrieves logs with pagination.
-func (r *logMessageRepository) FindWithPagination(limit, offset int) ([]entities.LogMessage, error) {
+func (r *logMessageRepository) FindWithPagination(ctx context.Context, limit, offset int) ([]entities.LogMessage, error) {
 	var modelsList []models.LogMessage
-	err := r.db.Limit(limit).Offset(offset).Find(&modelsList).Error
+	err := r.db.WithContext(ctx).Limit(limit).Offset(offset).Find(&modelsList).Error
 	if err != nil {
 		return nil, err
 	}
@@ -69,16 +70,16 @@ func (r *logMessageRepository) FindWithPagination(limit, offset int) ([]entities
 }
 
 // Update modifies an existing LogMessage in the database.
-func (r *logMessageRepository) Update(logMessage entities.LogMessage) error {
+func (r *logMessageRepository) Update(ctx context.Context, logMessage entities.LogMessage) error {
 	// GORM's Save will update all fields.
-	return r.db.Save(&logMessage).Error
+	return r.db.WithContext(ctx).Save(&logMessage).Error
 }
 
 // Delete removes a LogMessage from the database by its ID.
-func (r *logMessageRepository) Delete(id string) error {
+func (r *logMessageRepository) Delete(ctx context.Context, id string) error {
 	uuidID, err := uuid.Parse(id)
 	if err != nil {
 		return err
 	}
-	return r.db.Delete(&models.LogMessage{}, "id = ?", uuidID).Error
+	return r.db.WithContext(ctx).Delete(&models.LogMessage{}, "id = ?", uuidID).Error
 }

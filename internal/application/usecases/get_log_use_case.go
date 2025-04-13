@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"context"
 	"hub_logging/internal/domain/entities"
 	"hub_logging/internal/domain/repositoriesInterfaces"
 )
@@ -13,10 +14,10 @@ func NewGetLogsUseCase(repo repositoriesInterfaces.ILogMessageRepository) *GetLo
 	return &GetLogsUseCase{Repo: repo}
 }
 
-func (uc *GetLogsUseCase) Execute(limit, offset int) ([]entities.LogMessage, error) {
-	return uc.Repo.FindWithPagination(limit, offset)
+func (uc *GetLogsUseCase) Execute(ctx context.Context, limit, offset int) ([]entities.LogMessage, error) {
+	return uc.Repo.FindWithPagination(ctx, limit, offset) // Pass the context to the repository method
 }
 
-func (uc *GetLogsUseCase) ExecuteSingle(id string) (entities.LogMessage, error) {
-	return uc.Repo.FindByID(id)
+func (uc *GetLogsUseCase) ExecuteSingle(ctx context.Context, id string) (entities.LogMessage, error) {
+	return uc.Repo.FindByID(ctx, id) // Pass the context to the repository method
 }

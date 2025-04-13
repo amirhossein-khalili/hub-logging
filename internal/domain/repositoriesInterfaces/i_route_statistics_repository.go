@@ -2,9 +2,10 @@ package repositoriesInterfaces
 
 import (
 	"context"
-	"github.com/google/uuid"
 	"hub_logging/internal/domain/entities"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type IRouteStatisticsRepository interface {

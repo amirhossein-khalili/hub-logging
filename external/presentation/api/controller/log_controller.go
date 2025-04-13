@@ -30,6 +30,10 @@ func (lc *LogController) ListLogs(ctx *fiber.Ctx) error {
 	page := 1
 	limit := 10
 
+	// Extracting context from the request
+	requestCtx := ctx.Context()
+
+	// Parse query parameters for pagination
 	if p := ctx.Query("page"); p != "" {
 		if parsedPage, err := strconv.Atoi(p); err == nil && parsedPage > 0 {
 			page = parsedPage
@@ -43,7 +47,7 @@ func (lc *LogController) ListLogs(ctx *fiber.Ctx) error {
 
 	offset := (page - 1) * limit
 
-	logs, err := lc.GetLogsUseCase.Execute(limit, offset)
+	logs, err := lc.GetLogsUseCase.Execute(requestCtx, limit, offset) // Pass the context here
 	if err != nil {
 		return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -52,8 +56,11 @@ func (lc *LogController) ListLogs(ctx *fiber.Ctx) error {
 }
 
 func (lc *LogController) GetLog(ctx *fiber.Ctx) error {
+	// Extracting context from the request
+	requestCtx := ctx.Context()
+
 	id := ctx.Params("id")
-	logMessage, err := lc.GetLogsUseCase.ExecuteSingle(id)
+	logMessage, err := lc.GetLogsUseCase.ExecuteSingle(requestCtx, id) // Pass the context here
 	if err != nil {
 		return ctx.Status(http.StatusNotFound).JSON(fiber.Map{"error": "Log not found"})
 	}
@@ -61,6 +68,8 @@ func (lc *LogController) GetLog(ctx *fiber.Ctx) error {
 }
 
 func (lc *LogController) CreateLog(ctx *fiber.Ctx) error {
+	requestCtx := ctx.Context()
+
 	var req dtos.CreateLogDTO
 	if err := ctx.BodyParser(&req); err != nil {
 		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "Invalid payload"})
@@ -71,15 +80,17 @@ func (lc *LogController) CreateLog(ctx *fiber.Ctx) error {
 		req.Timestamp = time.Now()
 	}
 
-	if err := lc.CreateLogUseCase.Execute(req); err != nil {
+	if err := lc.CreateLogUseCase.Execute(requestCtx, req); err != nil { // Pass the context here
 		return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 	return ctx.Status(http.StatusCreated).JSON(fiber.Map{"message": "Log created successfully"})
 }
 
 func (lc *LogController) DeleteLog(ctx *fiber.Ctx) error {
+	requestCtx := ctx.Context()
+
 	id := ctx.Params("id")
-	if err := lc.DeleteLogUseCase.Execute(id); err != nil {
+	if err := lc.DeleteLogUseCase.Execute(requestCtx, id); err != nil { // Pass the context here
 		return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 	return ctx.JSON(fiber.Map{"message": "Log deleted successfully"})

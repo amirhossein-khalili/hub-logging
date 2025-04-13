@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"context"
 	"time"
 
 	"hub_logging/internal/application/dtos"
@@ -25,7 +26,7 @@ func NewCreateLogUseCase(
 	}
 }
 
-func (uc *CreateLogUseCase) Execute(input dtos.CreateLogDTO) error {
+func (uc *CreateLogUseCase) Execute(ctx context.Context, input dtos.CreateLogDTO) error {
 	statusCode, err := valueobjects.NewStatusCode(input.StatusCode)
 	if err != nil {
 		return err
@@ -56,12 +57,12 @@ func (uc *CreateLogUseCase) Execute(input dtos.CreateLogDTO) error {
 		return err
 	}
 
-	// Persist the new LogMessage using the repository.
-	if err := uc.LogRepo.Save(aggregate.GetLogMessage()); err != nil {
+	// Persist the new LogMessage using the repository, passing the context
+	if err := uc.LogRepo.Save(ctx, aggregate.GetLogMessage()); err != nil {
 		return err
 	}
 
-	// Publish the event so observers can update statistics.
+	// Publish the event so observers can update statistics
 	uc.LogEventPublisher.PublishLogCreated(*aggregate)
 
 	return nil

@@ -1,6 +1,9 @@
 package usecases
 
-import "hub_logging/internal/domain/repositoriesInterfaces"
+import (
+	"context"
+	"hub_logging/internal/domain/repositoriesInterfaces"
+)
 
 type DeleteLogUseCase struct {
 	Repo repositoriesInterfaces.ILogMessageRepository
@@ -10,6 +13,6 @@ func NewDeleteLogUseCase(repo repositoriesInterfaces.ILogMessageRepository) *Del
 	return &DeleteLogUseCase{Repo: repo}
 }
 
-func (uc *DeleteLogUseCase) Execute(id string) error {
-	return uc.Repo.Delete(id)
+func (uc *DeleteLogUseCase) Execute(ctx context.Context, id string) error {
+	return uc.Repo.Delete(ctx, id)
 }
